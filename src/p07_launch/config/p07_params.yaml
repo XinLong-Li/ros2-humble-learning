@@ -1,0 +1,9 @@
+# 给 param_demo_node 的参数文件
+# 顶层键必须是节点名，参数放在 ros__parameters 下
+param_demo_node:
+  ros__parameters:
+    robot_name: launch_bot
+    max_speed: 3.0
+    publish_rate: 2.0
+    enable_debug: true
+    waypoints: ["home", "kitchen", "dock"]

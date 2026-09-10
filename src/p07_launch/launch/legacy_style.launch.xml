@@ -1,0 +1,17 @@
+<!-- legacy_style.launch.xml —— ROS 1 风格的 XML launch 对照文件
+     Humble 仍支持 XML（launch_xml 后端），但注意语法差异：
+       ROS 1: <node pkg=".." type=".." name=".."/>  <arg name="x" default=".."/>  $(arg x)
+       ROS 2: <node pkg=".." exec=".." name=".."/>  <arg name="x" default=".."/>  $(var x)
+     新项目推荐 Python 写法（见同目录 .py 文件）。
+-->
+<launch>
+  <arg name="topic_name" default="legacy_chatter"/>
+
+  <node pkg="p01_hello_ros2" exec="hello_publisher" name="hello_publisher" output="screen">
+    <remap from="/chatter" to="$(var topic_name)"/>
+  </node>
+
+  <node pkg="p01_hello_ros2" exec="hello_subscriber" name="hello_subscriber" output="screen">
+    <remap from="/chatter" to="$(var topic_name)"/>
+  </node>
+</launch>

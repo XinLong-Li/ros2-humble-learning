@@ -1,0 +1,26 @@
+<?xml version="1.0"?>
+<?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="3">
+  <name>p07_launch</name>
+  <version>0.1.0</version>
+  <description>ROS 2 Humble 学习示例 07：launch 启动系统（Python 写法为主，附 ROS 1 XML 对照）</description>
+  <maintainer email="li_xin_long@foxmail.com">Xinlong-Li</maintainer>
+  <license>MIT</license>
+
+  <buildtool_depend>ament_cmake</buildtool_depend>
+
+  <!-- 本包没有 C++ 代码，只在运行期需要这些包的可执行文件，所以用 exec_depend -->
+  <exec_depend>ament_index_python</exec_depend>
+  <exec_depend>launch</exec_depend>
+  <exec_depend>launch_ros</exec_depend>
+  <exec_depend>launch_xml</exec_depend>
+  <exec_depend>p01_hello_ros2</exec_depend>
+  <exec_depend>p03_topics</exec_depend>
+  <exec_depend>p04_services</exec_depend>
+  <exec_depend>p05_actions</exec_depend>
+  <exec_depend>p06_params</exec_depend>
+
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
+</package>
