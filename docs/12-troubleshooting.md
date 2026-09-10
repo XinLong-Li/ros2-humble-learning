@@ -48,7 +48,29 @@
 | 时间/日期错乱 | 时钟漂移 | 见上表 |
 | 跨 Windows 主机通信不通 | NAT 多播限制 | 本机学习场景用 `ROS_LOCALHOST_ONLY=1` |
 
-## 5. 通杀三板斧
+## 5. C++ 代码类（本仓库实测踩过的坑）
+
+| 症状 | 原因 | 解法 |
+|---|---|---|
+| 节点随机**段错误**（exit -11） | range-for 遍历 `get_parameter("x").as_string_array()`：引用绑定到临时 Parameter 的内部 vector，临时对象在循环初始化后即销毁 → 悬垂引用 | 先存局部变量再遍历（p09 的 load_waypoints 有完整注释） |
+| 字段莫名对调/缺失 | `.action` 三段顺序写反（正确：目标/结果/反馈） | docs/06 第 4 节 |
+| 编译报接口字段不存在 | 同上 + Python 保留字字段名 | docs/06 第 4 节 |
+| 定时器相关随机崩溃 | 在定时器自己的回调里 `cancel()` 它自己 | 用标志位替代（p05/p09 的取消逻辑有注释） |
+| 编译警告 deprecated | 订阅回调用了 `const T::SharedPtr` | 用 `T::ConstSharedPtr` |
+| 订阅端收不到任何数据且位置在"服务端后启动"场景 | 个别环境下 DDS 未重新发现后加入的发布者（FastDDS 局限） | 重启订阅节点；或换 CycloneDDS |
+
+## 6. 进程管理坑
+
+`ros2 run` 是个包装脚本：`kill $!` 杀掉的是脚本，**节点本体可能继续活着**——
+同一个节点名悄悄残留多个实例，会污染通信（本仓库验证巡航时因此翻过车：
+残留的 navigate_to_server 抢走了目标，乌龟原地画圈）。清理用：
+```bash
+pkill -f '<节点可执行文件名>'     # 如 pkill -f waypoint_follower
+# 或者按路径批量杀（正则技巧：pkill -f 'install/p0[0-9]_'）
+```
+验证：`ps aux | grep -E 'install/p0' | grep -v grep` 应为空。
+
+## 7. 通杀三板斧
 
 ```bash
 # ① 看谁在：确认通信双方都在

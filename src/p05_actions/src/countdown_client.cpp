@@ -136,7 +136,11 @@ private:
   /// cancel_after 到点后自动发取消请求
   void cancel_callback()
   {
-    cancel_timer_->cancel();  // 一次性定时器：触发过就不用再响了
+    // 不在定时器自己的回调里 cancel 它（Humble 下可能段错误），改用标志位只发一次
+    if (cancel_sent_) {
+      return;
+    }
+    cancel_sent_ = true;
 
     GoalHandleCountDown::SharedPtr goal_handle;
     {
@@ -166,6 +170,7 @@ private:
 
   rclcpp_action::Client<CountDown>::SharedPtr client_;
   rclcpp::TimerBase::SharedPtr cancel_timer_;
+  bool cancel_sent_ = false;  // 取消请求只发一次
   std::shared_future<GoalHandleCountDown::SharedPtr> goal_handle_future_;
   // goal_handle_ 由子线程写、执行器线程读（取消定时器），必须加锁
   std::mutex mutex_;

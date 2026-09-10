@@ -36,14 +36,19 @@ public:
     vel_pub_ = this->create_publisher<geometry_msgs::msg::Twist>("/turtle1/cmd_vel", 10);
 
     // 轮询动作服务端是否就绪（不能阻塞 spin 的线程）
+    // 注意：绝不能在定时器自己的回调里 cancel 自己（Humble 下会段错误），
+    // 所以用 started_ 标志位让这个定时器在开始巡航后空转
     timer_ = this->create_wall_timer(500ms, [this]() {
+      if (started_) {
+        return;
+      }
       if (!client_->action_server_is_ready()) {
         RCLCPP_WARN_THROTTLE(
           this->get_logger(), *this->get_clock(), 5000,
           "等待 navigate_to 动作服务端（先启动 navigate_to_server 或直接用 launch 文件）...");
         return;
       }
-      timer_->cancel();
+      started_ = true;
       load_waypoints();
       send_next_goal();
     });
@@ -61,7 +66,13 @@ private:
 
   void load_waypoints()
   {
-    for (const auto & text : this->get_parameter("waypoints").as_string_array()) {
+    // ⚠️ 经典 C++ 陷阱：不能写
+    //   for (const auto & text : this->get_parameter("waypoints").as_string_array())
+    // get_parameter 返回临时 Parameter，as_string_array 返回其内部 vector 的引用；
+    // 临时对象在 range-for 初始化语句结束时即销毁 → 悬垂引用 → 段错误（本仓库实测踩坑）。
+    // 必须先存到局部变量，把临时对象的生命周期延长到整个循环。
+    const auto waypoints_param = this->get_parameter("waypoints");
+    for (const auto & text : waypoints_param.as_string_array()) {
       Waypoint wp;
       char label[64];
       // 解析 "label,x,y" 格式；用 C 风格 sscanf 最直白
@@ -135,11 +146,20 @@ private:
 
   void schedule_next(double delay_seconds)
   {
-    // 航点之间稍作停留：一次性定时器，触发后自我取消
+    // 航点之间稍作停留：用 100 ms 检查定时器等到点。
+    // 不用"一次性定时器+回调内 cancel"：定时器回调里 cancel 自己会段错误（Humble 实测）
+    waiting_ = true;
+    wait_start_ = this->now();
     next_timer_ = this->create_wall_timer(
-      std::chrono::duration<double>(delay_seconds),
-      [this]() {
-        next_timer_->cancel();
+      100ms,
+      [this, delay_seconds]() {
+        if (!waiting_) {
+          return;
+        }
+        if ((this->now() - wait_start_).seconds() < delay_seconds) {
+          return;
+        }
+        waiting_ = false;
         send_next_goal();
       });
   }
@@ -158,6 +178,9 @@ private:
   rclcpp::TimerBase::SharedPtr next_timer_;
   std::vector<Waypoint> waypoints_;
   size_t index_ = 0;
+  bool started_ = false;
+  bool waiting_ = false;
+  rclcpp::Time wait_start_;
 };
 
 int main(int argc, char * argv[])
