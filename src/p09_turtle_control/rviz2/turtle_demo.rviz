@@ -1,0 +1,46 @@
+Panels:
+  - Class: rviz_common/Displays
+    Name: Displays
+    Splitter Configuration:
+      collapsible: false
+  - Class: rviz_common/Views
+    Name: Views
+    Splitter Configuration:
+      collapsible: false
+Visualization Manager:
+  Class: ""
+  Displays:
+    - Class: rviz_default_plugins/TF
+      Enabled: true
+      Frame Timeout: 15
+      Marker Scale: 1
+      Name: TF
+      Show Arrows: true
+      Show Axes: true
+      Show Names: true
+      Update Interval: 0
+      Value: true
+    - Class: rviz_default_plugins/Grid
+      Enabled: true
+      Name: Grid
+      Normal Cell Count: 10
+      Cell Size: 1
+      Plane: XY
+      Plane Cell Count: 10
+      Value: true
+  Global Options:
+    Background Color: 48; 48; 48
+    Fixed Frame: world
+    Frame Rate: 30
+  Views:
+    Current:
+      Class: rviz_default_plugins/Orbit
+      Distance: 14
+      Focal Point:
+        X: 5.5
+        Y: 5.5
+        Z: 0
+      Name: Current View
+      Pitch: 1.0
+      Target Frame: <Fixed Frame>
+      Yaw: 0.8
