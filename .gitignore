@@ -1,0 +1,29 @@
+# colcon 构建产物
+build/
+install/
+log/
+
+# Python
+__pycache__/
+*.pyc
+
+# 编辑器 / IDE
+.vscode/
+.idea/
+*.swp
+compile_commands.json
+
+# rosbag 录制产物（体积大，不入库）
+bags/
+*.db3
+*.mcap
+*.bag
+rosbag2_*/
+
+# WSL / Windows 混杂文件
+*.lnk
+.DS_Store
+
+# tf2_tools 生成的 PDF（按需重新生成）
+frames.pdf
+frames.gv
