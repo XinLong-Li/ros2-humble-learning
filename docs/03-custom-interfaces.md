@@ -17,8 +17,9 @@ int64[] values
 ---
 int64 sum
 
-# CountDown.action —— 三段：目标 / 反馈 / 结果
-int32 from
+# CountDown.action —— 三段顺序：目标 / 结果 / 反馈（顺序别记反！）
+# （字段名不能用 Python 保留字如 from/import，rosidl 会拒绝生成）
+int32 start
 ---
 int32 current
 ---

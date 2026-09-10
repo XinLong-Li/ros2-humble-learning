@@ -24,7 +24,9 @@ public:
   }
 
 private:
-  void topic_callback(const std_msgs::msg::String::SharedPtr msg)
+  // 回调参数用 ConstSharedPtr（= shared_ptr<const T>）：
+  // const T::SharedPtr 在 Humble 会命中 deprecated 重载产生编译警告
+  void topic_callback(std_msgs::msg::String::ConstSharedPtr msg)
   {
     RCLCPP_INFO(this->get_logger(), "收到: '%s'", msg->data.c_str());
   }

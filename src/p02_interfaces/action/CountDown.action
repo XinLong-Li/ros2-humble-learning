@@ -1,11 +1,14 @@
-# 目标：从 from 开始按步长 step 倒数到 0
+# 目标：从 start 开始按步长 step 倒数到 0
 # （纯基础类型，方便用 ros2 action send_goal 从命令行测试）
-int32 from
+#
+# ⚠️ .action 三段顺序是：目标 / 结果 / 反馈（不是 目标/反馈/结果！）
+# ⚠️ 字段名不能用 Python 保留字（如 from、import）——rosidl 会拒绝生成！
+int32 start
 int32 step
----
-# 反馈：当前值
-int32 current
 ---
 # 结果：总步数与结束信息
 int32 total_steps
 string message
+---
+# 反馈：当前值
+int32 current

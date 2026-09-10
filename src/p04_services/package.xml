@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="3">
+  <name>p04_services</name>
+  <version>0.1.0</version>
+  <description>ROS 2 Humble 学习示例 04：服务、回调组与执行器并发（单线程/多线程服务端 + 同步/异步客户端）</description>
+  <maintainer email="li_xin_long@foxmail.com">Xinlong-Li</maintainer>
+  <license>MIT</license>
+
+  <buildtool_depend>ament_cmake</buildtool_depend>
+
+  <depend>rclcpp</depend>
+  <!-- 服务类型 p02_interfaces/srv/ComputeSum 来自 p02_interfaces（纯接口包） -->
+  <depend>p02_interfaces</depend>
+
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
+</package>

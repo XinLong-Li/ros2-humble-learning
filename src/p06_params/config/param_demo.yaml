@@ -1,0 +1,12 @@
+# 参数文件：节点名 -> ros__parameters -> 参数键值
+# 加载方式（注意 --params-file 要在 --ros-args 之后）：
+#   ros2 run p06_params param_demo_node --ros-args \
+#     --params-file install/p06_params/share/p06_params/config/param_demo.yaml
+#
+# 顶层 key 必须和节点名一致（param_demo_node）；写错节点名不会报错，
+# 参数只是静默地不生效——和 ROS 1 的全局参数服务器完全不同。
+param_demo_node:
+  ros__parameters:
+    max_speed: 9.9        # 故意超范围：演示参数文件加载时同样会经过校验回调
+    robot_name: demo_bot
+    enable_debug: true

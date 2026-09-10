@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="3">
+  <name>p06_params</name>
+  <version>0.1.0</version>
+  <description>ROS 2 Humble 学习示例 06：参数声明、描述符、校验回调、参数事件与 YAML 加载</description>
+  <maintainer email="li_xin_long@foxmail.com">Xinlong-Li</maintainer>
+  <license>MIT</license>
+
+  <buildtool_depend>ament_cmake</buildtool_depend>
+
+  <depend>rclcpp</depend>
+  <!-- 代码里直接 include 了 rcl_interfaces/msg/*.hpp（描述符、范围、SetParametersResult），
+       所以按"谁用谁声明"的原则显式依赖，而不是靠 rclcpp 间接带进来 -->
+  <depend>rcl_interfaces</depend>
+
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
+</package>

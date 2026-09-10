@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="3">
+  <name>p03_topics</name>
+  <version>0.1.0</version>
+  <description>ROS 2 Humble 学习示例 03：话题发布/订阅与 QoS 策略（含 best_effort 发布 + reliable 订阅的静默不匹配、transient_local 实验）</description>
+  <maintainer email="li_xin_long@foxmail.com">Xinlong-Li</maintainer>
+  <license>MIT</license>
+
+  <buildtool_depend>ament_cmake</buildtool_depend>
+
+  <!-- 自定义消息来自 p02_interfaces；std_msgs 直接在代码里用到，
+       geometry_msgs 是 RobotStatus 字段类型，这里一并声明，保持依赖自洽 -->
+  <depend>rclcpp</depend>
+  <depend>p02_interfaces</depend>
+  <depend>std_msgs</depend>
+  <depend>geometry_msgs</depend>
+
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
+</package>
