@@ -1,0 +1,11 @@
+# 目标：从 from 开始按步长 step 倒数到 0
+# （纯基础类型，方便用 ros2 action send_goal 从命令行测试）
+int32 from
+int32 step
+---
+# 反馈：当前值
+int32 current
+---
+# 结果：总步数与结束信息
+int32 total_steps
+string message

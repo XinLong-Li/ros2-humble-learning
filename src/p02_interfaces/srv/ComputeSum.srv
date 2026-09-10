@@ -1,0 +1,7 @@
+# 请求：一组整数（演示数组字段）
+int64[] values
+---
+# 响应：和、平均值、个数
+int64 sum
+float64 average
+int32 count

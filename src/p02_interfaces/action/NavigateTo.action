@@ -1,0 +1,13 @@
+# 目标：导航到 Waypoint 航点
+# （p05 里先在虚拟世界实现，p09 里换成控制真乌龟——同一个 action 类型）
+Waypoint target      # 目标航点（引用本包的 msg/Waypoint，注意这里是裸类型名）
+float64 tolerance   # 判定"到达"的距离阈值（米）
+float64 max_speed   # 最大线速度（米/秒）
+---
+# 反馈：剩余距离（米）
+float64 distance_remaining
+---
+# 结果
+bool success
+float64 final_distance
+float64 elapsed_seconds
