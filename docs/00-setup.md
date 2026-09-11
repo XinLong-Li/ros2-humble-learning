@@ -61,19 +61,21 @@ source install/setup.bash
 
 实测对比（2026-09，公司网络）：
 
-| 源 | 换源前 | 换源后 |
+| 源 | 换源前 | 换源后（阿里云） |
 |---|---|---|
-| Ubuntu 主源 | archive.ubuntu.com 581 KB/s | 阿里云 **4390 KB/s** |
-| ROS 2 源 | packages.ros.org 983 KB/s | 中科大 **5075 KB/s** |
+| Ubuntu 主源 | archive.ubuntu.com 581 KB/s | **4390 KB/s** |
+| ROS 2 源 | packages.ros.org 983 KB/s | **6725 KB/s** |
 
 ```bash
 # ① Ubuntu 主源 → 阿里云
 sudo cp /etc/apt/sources.list /etc/apt/sources.list.bak
 sudo sed -i 's|http://archive.ubuntu.com/ubuntu|https://mirrors.aliyun.com/ubuntu|g; s|http://security.ubuntu.com/ubuntu|https://mirrors.aliyun.com/ubuntu|g' /etc/apt/sources.list
 
-# ② ROS 2 源 → 中科大（备选：清华 mirrors.tuna.tsinghua.edu.cn/ros2/ubuntu）
+# ② ROS 2 源 → 阿里云（备选：中科大 mirrors.ustc.edu.cn/ros2/ubuntu、清华 /ros2/ubuntu）
+#    注意：同时把 Types 里的 deb-src 去掉——源码包学习时用不到，
+#    而且镜像站同步源码索引较慢，容易出现 "Mirror sync in progress" 报错
 sudo cp /etc/apt/sources.list.d/ros2.sources /etc/apt/sources.list.d/ros2.sources.bak
-sudo sed -i 's|http://packages.ros.org/ros2/ubuntu|https://mirrors.ustc.edu.cn/ros2/ubuntu|' /etc/apt/sources.list.d/ros2.sources
+sudo sed -i 's|^Types: deb deb-src|Types: deb|; s|http://packages.ros.org/ros2/ubuntu|https://mirrors.aliyun.com/ros2/ubuntu|' /etc/apt/sources.list.d/ros2.sources
 
 # ③ 必须重新更新索引，新源才生效
 sudo apt update
@@ -81,6 +83,10 @@ sudo apt update
 # 验证：应显示 Candidate 版本且 update 飞快
 apt-cache policy ros-humble-turtlesim | head -3
 ```
+
+> 常见报错 `File has unexpected size ... Mirror sync in progress?`：
+> 镜像站正在同步（通常是 deb-src 的 Sources.gz 还没同步完）。按上面 ② 去掉 `deb-src` 再
+> `sudo apt update` 即可；或临时换另一家镜像。
 
 **代理与镜像的分工**（本项目实测结论）：
 

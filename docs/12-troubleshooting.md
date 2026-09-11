@@ -8,6 +8,7 @@
 |---|---|---|
 | 照教程装包，结果拉进来一堆 **`ros-rolling-*`**（本仓库实测：误装 `ros-rolling-turtlesim` 带来 98 个包、1~2 GB） | 第三方文档镜像（如 `ros.ncnynl.com`）**URL 里写着 humble，页面内容却是从 rolling 分支生成的**，代码块里的包名是 `ros-rolling-xxx` | 认准官方 `docs.ros.org/en/humble/...`；**照抄命令前先核对包名里的发行版代号**（本机必须是 `ros-humble-*`）；误装后 `sudo apt purge 'ros-rolling-*' && sudo apt autoremove` |
 | `apt install` 慢到几十 KB/s | `sudo apt` 会丢弃代理环境变量，直连美国源 | 换国内镜像源，见 [00-setup.md §2.4](00-setup.md) |
+| `apt update` 报 `File has unexpected size ... Mirror sync in progress?` | 镜像站正在同步，通常是 `deb-src`（源码索引 Sources.gz）滞后 | 在 `ros2.sources` 里把 `Types: deb deb-src` 改成 `Types: deb`（学习不需要源码包），或临时换一家镜像 |
 | 换了源但没变快 / 装的还是旧版本 | 改完源没跑 `sudo apt update` | 索引更新后新源才生效 |
 
 > 判断当前该装哪个发行版的包：`printenv ROS_DISTRO` 输出什么，包名就用什么前缀。
