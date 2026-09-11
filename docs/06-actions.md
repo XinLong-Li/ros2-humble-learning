@@ -66,9 +66,16 @@ Humble 的 `--remap` 是**逐名字精确匹配**（rcl 源码 `remap.c` 里 `st
 <turtle>/rotate_absolute/_action/status
 ```
 
-所以 `--remap turtle1/rotate_absolute:=turtle2/rotate_absolute` **不会生效**——
-基名和 5 个底层名字没有一个是精确相等的（对比：话题 `cmd_vel` 是单个名字，remap 直接生效。
-官方教程的 teleop remap 示例只给了 cmd_vel，所以"箭头控制 turtle2、字母键还控制 turtle1"）。
+所以 `--remap turtle1/rotate_absolute:=turtle2/rotate_absolute` **在 Humble 上不会生效**——
+基名和 5 个底层名字没有一个是精确相等的（对比：话题 `cmd_vel` 是单个名字，remap 直接生效）。
+
+> **根因是上游已知问题**：[ros2/ros2#1312](https://github.com/ros2/ros2/issues/1312)
+> "remapping of action names is not possible"——Humble 的 rcl 压根没实现动作名重映射，
+> 修复（[ros2/rcl#1220](https://github.com/ros2/rcl/pull/1220)）于 2025 年 3 月
+> 才 backport 到 **Jazzy**。所以官方教程
+> （Introducing-Turtlesim）给的 `--remap turtle1/rotate_absolute:=turtle2/rotate_absolute`
+> 在 Humble 上**静默失效**——字母键依然控制 turtle1，箭头正常控制 turtle2。
+> 这不是你拼错，也不是命令语法错，是 Humble 的实现缺口。
 
 正确做法是把 5 个底层名字逐一 remap（实测有效）：
 
