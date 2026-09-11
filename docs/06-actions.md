@@ -53,6 +53,38 @@ client_->async_cancel_goal(goal_handle);
 2. **字段名不能用 Python 保留字**（`from`、`import` 等）——rosidl 会拒绝生成（p02 的 CountDown 字段因此叫 `start`）。
    注意区别：**节点参数名只是运行时字符串，叫 `from` 没问题**（p05 的 countdown_client 参数就叫 from，已在注释里说明）。
 
+## 4.5 动作名字的 remap 坑（本仓库实测）
+
+Humble 的 `--remap` 是**逐名字精确匹配**（rcl 源码 `remap.c` 里 `strcmp` 精确相等才算命中，
+没有"前缀匹配"）。而一个动作在底层是 **5 个独立的名字**：
+
+```
+<turtle>/rotate_absolute/_action/send_goal       # 服务 ×3
+<turtle>/rotate_absolute/_action/cancel_goal
+<turtle>/rotate_absolute/_action/get_result
+<turtle>/rotate_absolute/_action/feedback        # 话题 ×2（注意不是 feedback_message！）
+<turtle>/rotate_absolute/_action/status
+```
+
+所以 `--remap turtle1/rotate_absolute:=turtle2/rotate_absolute` **不会生效**——
+基名和 5 个底层名字没有一个是精确相等的（对比：话题 `cmd_vel` 是单个名字，remap 直接生效。
+官方教程的 teleop remap 示例只给了 cmd_vel，所以"箭头控制 turtle2、字母键还控制 turtle1"）。
+
+正确做法是把 5 个底层名字逐一 remap（实测有效）：
+
+```bash
+ros2 run turtlesim turtle_teleop_key --ros-args \
+  -r /turtle1/cmd_vel:=/turtle2/cmd_vel \
+  -r /turtle1/rotate_absolute/_action/send_goal:=/turtle2/rotate_absolute/_action/send_goal \
+  -r /turtle1/rotate_absolute/_action/cancel_goal:=/turtle2/rotate_absolute/_action/cancel_goal \
+  -r /turtle1/rotate_absolute/_action/get_result:=/turtle2/rotate_absolute/_action/get_result \
+  -r /turtle1/rotate_absolute/_action/feedback:=/turtle2/rotate_absolute/_action/feedback \
+  -r /turtle1/rotate_absolute/_action/status:=/turtle2/rotate_absolute/_action/status
+```
+
+> 底层名字的真实格式怎么确认？CLI 的 `ros2 service list`/`topic list` 会**过滤掉** `/_action/` 名字，
+> 用 rclpy 的 `get_service_names_and_types()` 才能看到全貌（本仓库就是这么挖出来的）。
+
 ## 5. 验证命令
 
 ```bash
