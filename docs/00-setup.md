@@ -53,6 +53,43 @@ source install/setup.bash
 `--symlink-install`：install 里的文件是源码的软链接，改 launch/yaml/rviz 配置**不用重编**；
 改 `.cpp` 或 `.msg` 仍需重编。学习期建议一直开着。
 
+### 2.4 国内网络加速（重要，先做这一步再装任何包）
+
+**坑点**：`sudo apt` 会**丢弃 shell 里的代理环境变量**，所以即使你配了代理，apt 仍是直连
+`packages.ros.org` / `archive.ubuntu.com`（美国），实测只有几百 KB/s。正确做法是**换国内镜像源**
+（走 CDN，比代理还快），代理留给 GitHub 这类没有国内镜像的场景。
+
+实测对比（2026-09，公司网络）：
+
+| 源 | 换源前 | 换源后 |
+|---|---|---|
+| Ubuntu 主源 | archive.ubuntu.com 581 KB/s | 阿里云 **4390 KB/s** |
+| ROS 2 源 | packages.ros.org 983 KB/s | 中科大 **5075 KB/s** |
+
+```bash
+# ① Ubuntu 主源 → 阿里云
+sudo cp /etc/apt/sources.list /etc/apt/sources.list.bak
+sudo sed -i 's|http://archive.ubuntu.com/ubuntu|https://mirrors.aliyun.com/ubuntu|g; s|http://security.ubuntu.com/ubuntu|https://mirrors.aliyun.com/ubuntu|g' /etc/apt/sources.list
+
+# ② ROS 2 源 → 中科大（备选：清华 mirrors.tuna.tsinghua.edu.cn/ros2/ubuntu）
+sudo cp /etc/apt/sources.list.d/ros2.sources /etc/apt/sources.list.d/ros2.sources.bak
+sudo sed -i 's|http://packages.ros.org/ros2/ubuntu|https://mirrors.ustc.edu.cn/ros2/ubuntu|' /etc/apt/sources.list.d/ros2.sources
+
+# ③ 必须重新更新索引，新源才生效
+sudo apt update
+
+# 验证：应显示 Candidate 版本且 update 飞快
+apt-cache policy ros-humble-turtlesim | head -3
+```
+
+**代理与镜像的分工**（本项目实测结论）：
+
+| 场景 | 用镜像换源 | 用代理 |
+|---|---|---|
+| `apt install` 装 ROS/系统包 | ✅ 最快 | ❌ sudo 会丢代理变量 |
+| `git clone` / `git push` GitHub | 无镜像 | ✅ 必须 |
+| pip（可选） | 清华 PyPI 源 | — |
+
 ## 3. 目录约定
 
 ```
