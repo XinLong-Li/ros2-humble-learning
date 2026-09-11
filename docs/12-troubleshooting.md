@@ -40,13 +40,51 @@
 
 ## 4. WSL2 专有
 
+### 4.1 GUI 白屏排查（本仓库实测踩坑，2026-09）
+
+症状：窗口能弹出来，但**内容全白**，窗口标题栏带 `[WARN:COPY MODE]` 前缀
+（rviz2、turtlesim、甚至最简单的 xmessage 都一样）。
+
+**第一步：区分是"GL 问题"还是"整个 WSLg 挂了"**——跑一个不依赖 OpenGL 的纯 X 客户端：
+
+```bash
+xmessage -title TEST "能看到这行字吗"
+```
+
+- xmessage **也白屏** → WSLg 合成器整体失效（GPU 直通卡死），见下面第二步
+- xmessage 正常、只有 rviz2 白屏 → 只是 GL 问题 → `export LIBGL_ALWAYS_SOFTWARE=1` 后重跑
+
+**第二步：确认 GPU 直通状态**：
+
+```bash
+dmesg | grep -i dxg | tail
+# 出现 dxgkio_query_adapter_info: Ioctl failed: -22 / dxgkio_reserve_gpu_va failed
+# 说明 WSL 拿不到宿主 GPU（本机实测：AMD 780M + RDP 会话下必现）
+```
+
+**第三步：修复**——在 **Windows** 的 PowerShell 里重启 WSL：
+
+```powershell
+wsl --shutdown
+```
+
+等 10 秒重开 WSL 终端即可恢复。原理：GPU 直通失败时 WSLg 本应自动退回软件渲染，
+但偶发状态下"卡住不兜底"，重启后软件渲染路径正常工作（此时 `dxg` 报错仍在，
+但窗口能画出来，只是没有 GPU 加速、rviz2 略慢）。
+
+若重启后仍白屏，依次尝试：`wsl --update` → 更新显卡驱动 → Windows 侧装 X server
+（VcXsrv/X410）并用 `export DISPLAY=<WindowsIP>:0` 绕过 WSLg。
+
+### 4.2 其他 WSL2 问题
+
 | 症状 | 原因 | 解法 |
 |---|---|---|
-| GUI 窗口不出来 | WSLg 没起来 | `wsl --shutdown` 重启 WSL；确认 `echo $DISPLAY` 非空 |
+| GUI 窗口完全不出来 | WSLg 没起来 | `wsl --shutdown` 重启 WSL；确认 `echo $DISPLAY` 非空 |
 | rviz2 报 GL/EGL 错 | 显卡直通问题 | `export LIBGL_ALWAYS_SOFTWARE=1` |
 | Qt 报 xcb 错 | 平台插件问题 | `export QT_QPA_PLATFORM=xcb` |
+| xmessage 里中文显示成乱码 | xmessage 自带西文字体无中文字形 | 正常现象，仅影响 xmessage；rviz2/turtlesim 用 Qt 显示中文正常 |
 | 时间/日期错乱 | 时钟漂移 | 见上表 |
-| 跨 Windows 主机通信不通 | NAT 多播限制 | 本机学习场景用 `ROS_LOCALHOST_ONLY=1` |
+| 跨 Windows 主机通信不通 | 网络模式限制 | 本机学习场景用 `ROS_LOCALHOST_ONLY=1` |
 
 ## 5. C++ 代码类（本仓库实测踩过的坑）
 
