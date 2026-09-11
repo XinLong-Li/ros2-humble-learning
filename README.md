@@ -53,6 +53,7 @@ ros2-humble-learning/
 | [10-turtlesim-project.md](docs/10-turtlesim-project.md) | 综合项目：控制小乌龟（p09） |
 | [11-tools-and-debugging.md](docs/11-tools-and-debugging.md) | 工具链与调试（CLI/rqt/rviz2/rosbag） |
 | [12-troubleshooting.md](docs/12-troubleshooting.md) | 常见错误与排查手册 |
+| [13-turtlesim-teleop-remap.md](docs/13-turtlesim-teleop-remap.md) | 案例复盘：官方教程的键盘 remap 为什么在 Humble 上失效 |
 
 ## 快速开始
 

@@ -50,6 +50,11 @@
 
 > 两者的定位差异：官方教程 = 广度 + 权威 + CLI 实验；本仓库 = 深度 + 完整 C++ 工程
 > + ROS 1→2 对照 + 真实踩坑记录。**推荐顺序：本仓库跑通主线 → 官方对照补细节。**
+>
+> ⚠️ 已知例外：官方 Introducing-Turtlesim 教程第 6 步的键盘 remap 命令
+> （`--remap turtle1/rotate_absolute:=turtle2/rotate_absolute`）在 **Humble 上静默失效**——
+> 动作名重映射是 Jazzy 才实现的功能。完整案例与正确写法见
+> [13-turtlesim-teleop-remap.md](13-turtlesim-teleop-remap.md)。
 
 ## 最小路径 vs 完整路径
 

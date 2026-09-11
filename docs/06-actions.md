@@ -91,6 +91,9 @@ ros2 run turtlesim turtle_teleop_key --ros-args \
 
 > 底层名字的真实格式怎么确认？CLI 的 `ros2 service list`/`topic list` 会**过滤掉** `/_action/` 名字，
 > 用 rclpy 的 `get_service_names_and_types()` 才能看到全貌（本仓库就是这么挖出来的）。
+>
+> **完整的案例复盘**（现象 → 背景知识 → 根因 → 三种方案 → 排查方法论）见
+> [13-turtlesim-teleop-remap.md](13-turtlesim-teleop-remap.md)。
 
 ## 5. 验证命令
 
