@@ -93,11 +93,27 @@ private:
     rclcpp::Rate loop_rate(rate);
 
     while (rclcpp::ok()) {
+      // ① 取位姿快照：锁只包住"拷贝这几行"，取完立刻释放。
+      //    ⚠️ 绝不能把锁带进 loop_rate.sleep()！那样 pose 回调抢不到锁被"饿死"，
+      //    控制器会一直用几十秒前的旧位姿计算 —— 本仓库实测踩过这个坑：
+      //    乌龟其实已经到位了，控制器却还在原地打转（v=0, w 恒定）。
+      double x = 0.0, y = 0.0, theta = 0.0;
+      {
+        std::lock_guard<std::mutex> lock(pose_mutex_);
+        x = pose_x_;
+        y = pose_y_;
+        theta = pose_theta_;
+      }
+
+      const double dx = goal->target.position.x - x;
+      const double dy = goal->target.position.y - y;
+      const double dist = std::hypot(dx, dy);
+
       // 取消优先于到达判断：用户按下取消就该立刻停
       if (goal_handle->is_canceling()) {
         publish_twist(0.0, 0.0);
         result->success = false;
-        result->final_distance = distance_to(goal->target);
+        result->final_distance = dist;
         result->elapsed_seconds = (this->now() - start).seconds();
         goal_handle->canceled(result);
         active_goal_.reset();
@@ -105,7 +121,6 @@ private:
         return;
       }
 
-      const double dist = distance_to(goal->target);
       if (dist <= tolerance) {
         publish_twist(0.0, 0.0);
         result->success = true;
@@ -119,16 +134,18 @@ private:
         return;
       }
 
-      // 比例控制：线速度随距离衰减；角速度朝向目标（角度误差归一化到 ±π）
-      std::lock_guard<std::mutex> lock(pose_mutex_);
-      const double desired_yaw = std::atan2(
-        goal->target.position.y - pose_y_,
-        goal->target.position.x - pose_x_);
-      double yaw_error = desired_yaw - pose_theta_;
+      // ② "奔向目标"控制律（角度误差归一化到 ±π）
+      const double desired_yaw = std::atan2(dy, dx);
+      double yaw_error = desired_yaw - theta;
       while (yaw_error > M_PI) {yaw_error -= 2.0 * M_PI;}
       while (yaw_error < -M_PI) {yaw_error += 2.0 * M_PI;}
 
-      const double v = std::clamp(kp_linear * dist, 0.0, max_speed);
+      // 线速度乘上 cos(角度误差)，并在"背对目标"时归零：
+      //   目标在身后 (|φ|>90°) → v=0 → 先原地转身，对准后再直线前进。
+      // 只用 v=k*d、w=k*φ 的朴素比例控制会画圈：两者同时饱和时轨迹是
+      //   半径 v/w 的圆弧（实测 v=w=2.0 → 半径 1 m 的圆圈）。
+      const double heading_scale = std::max(0.0, std::cos(yaw_error));
+      const double v = std::clamp(kp_linear * dist * heading_scale, 0.0, max_speed);
       const double w = std::clamp(kp_angular * yaw_error, -2.0, 2.0);
       publish_twist(v, w);
 
@@ -136,17 +153,10 @@ private:
       feedback->distance_remaining = dist;
       goal_handle->publish_feedback(feedback);
 
+      // ③ 此时不持任何锁 —— pose 回调可以正常更新位姿
       loop_rate.sleep();
     }
     active_goal_.reset();
-  }
-
-  double distance_to(const p02_interfaces::msg::Waypoint & target)
-  {
-    std::lock_guard<std::mutex> lock(pose_mutex_);
-    const double dx = target.position.x - pose_x_;
-    const double dy = target.position.y - pose_y_;
-    return std::hypot(dx, dy);
   }
 
   void pose_callback(const turtlesim::msg::Pose::SharedPtr msg)
