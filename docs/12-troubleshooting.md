@@ -110,6 +110,47 @@ wsl --shutdown
 
 ## 6. 进程管理坑
 
+### 6.1 `Ctrl-C` vs `Ctrl-Z`（一定要分清）
+
+| 按键 | 信号 | 作用 | 结果 |
+|---|---|---|---|
+| **`Ctrl-C`** | SIGINT | **结束**程序 | 进程退出，资源释放 ✓ |
+| **`Ctrl-Z`** | SIGTSTP | **挂起**程序（暂停但不结束） | 进程状态变成 `T`，仍占着 DDS 端点，`kill`（SIGTERM）也杀不掉它！ |
+
+按了 `Ctrl-Z` 后终端会显示 `[1]+ Stopped ros2 run ...`，此时：
+
+```bash
+jobs        # 查看挂起的作业
+fg          # 调回前台继续运行
+kill %1     # 结束 1 号作业
+```
+
+**排查线索**：如果 `ps` 里进程的 STAT 是 `T`（或 `Tl`），就是被挂起了；
+用 `kill -9` 强杀，或先 `kill -CONT` 恢复再正常结束。
+本仓库实测踩坑：挂起的 `ros2 launch` 还会挡住子进程回收，留下一堆僵尸（`Z`）进程。
+
+### 6.2 多个控制源抢同一个话题
+
+话题**允许多个发布者**，谁都不会报错。多个程序同时往 `/turtle1/cmd_vel` 发指令时，
+表现为"乌龟行为诡异"（实测：残留的 `ros2 topic pub` 持续发 `linear.x=2.0`，
+叠加导航节点的转向指令 → 乌龟原地画圈，而不是走直线）。
+
+**排查**：看有几个发布者、都是谁：
+
+```bash
+ros2 topic info /turtle1/cmd_vel -v | grep -A1 "Publisher count"
+ros2 node list | sort | uniq -c | sort -rn     # 找重复的节点名
+```
+
+**跑任何 demo 前的自检习惯**：
+
+```bash
+ros2 node list                                # 应该只有你预期的节点
+ps -eo pid,stat,cmd | grep -E "ros2 launch|ros2 run" | grep -v grep   # 看有无残留（注意 STAT 有无 T）
+```
+
+### 6.3 `ros2 run` 包装脚本的残留问题
+
 `ros2 run` 是个包装脚本：`kill $!` 杀掉的是脚本，**节点本体可能继续活着**——
 同一个节点名悄悄残留多个实例，会污染通信（本仓库验证巡航时因此翻过车：
 残留的 navigate_to_server 抢走了目标，乌龟原地画圈）。清理用：
