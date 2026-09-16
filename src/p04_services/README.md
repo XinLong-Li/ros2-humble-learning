@@ -52,7 +52,7 @@ p04_services/
 ## 编译运行
 
 ```bash
-cd ~/ros2_ws/ros2-humble-learning
+cd ~/ros2-humble-learning
 source /opt/ros/humble/setup.bash
 colcon build --symlink-install --packages-select p02_interfaces p04_services   # p02 是接口包，必须一起编
 source install/setup.bash

@@ -96,7 +96,7 @@ p05_actions/
 ## 编译运行
 
 ```bash
-# 在仓库根目录（~/ros2_ws/ros2-humble-learning）
+# 在仓库根目录（~/ros2-humble-learning）
 source /opt/ros/humble/setup.bash
 # p05 依赖 p02_interfaces，--packages-up-to 会把依赖一起编
 colcon build --symlink-install --packages-up-to p05_actions

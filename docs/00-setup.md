@@ -12,7 +12,7 @@
 | RMW 实现 | FastDDS（唯一，未装 CycloneDDS） |
 | GUI | WSLg 1.0，`DISPLAY=:0`，turtlesim/rviz2/rqt 直接出窗口 |
 | 工具链 | gcc 11.4 / cmake 3.22.1 / Python 3.10.12 / colcon 0.3.x |
-| 工作空间 | `/home/lxl/ros2_ws/ros2-humble-learning`（本仓库，自包含） |
+| 工作空间 | `/home/lxl/ros2-humble-learning`（本仓库，自包含） |
 | 资源 | 8 核，`/home` 余量 900+ GB |
 
 ## 2. 一次性配置
@@ -31,8 +31,8 @@ colcon --help   # 验证
 # ===== ROS 2 Humble =====
 source /opt/ros/humble/setup.bash
 # 本学习工作空间的 overlay（存在才 source，避免尚未 build 时报错）
-if [ -f /home/lxl/ros2_ws/ros2-humble-learning/install/setup.bash ]; then
-  source /home/lxl/ros2_ws/ros2-humble-learning/install/setup.bash
+if [ -f /home/lxl/ros2-humble-learning/install/setup.bash ]; then
+  source /home/lxl/ros2-humble-learning/install/setup.bash
 fi
 export ROS_DOMAIN_ID=42          # 避免与同网段其他 ROS 2 系统串扰
 # export ROS_LOCALHOST_ONLY=1    # 仅在 DDS 发现异常时打开，见 docs/12
@@ -45,7 +45,7 @@ export ROS_DOMAIN_ID=42          # 避免与同网段其他 ROS 2 系统串扰
 ### 2.3 构建工作空间
 
 ```bash
-cd ~/ros2_ws/ros2-humble-learning
+cd ~/ros2-humble-learning
 colcon build --symlink-install      # 首次 1~3 分钟
 source install/setup.bash
 ```

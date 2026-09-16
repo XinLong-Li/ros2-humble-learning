@@ -77,7 +77,7 @@ p03_topics/
 
 ```bash
 source /opt/ros/humble/setup.bash
-cd ~/ros2_ws/ros2-humble-learning
+cd ~/ros2-humble-learning
 colcon build --symlink-install --packages-select p02_interfaces p03_topics
 source install/setup.bash
 ```
@@ -229,7 +229,7 @@ ros2 topic echo /qos_demo --qos-reliability reliable --qos-durability transient_
 ```bash
 # ---------- 0) 构建 ----------
 source /opt/ros/humble/setup.bash
-cd ~/ros2_ws/ros2-humble-learning
+cd ~/ros2-humble-learning
 colcon build --symlink-install --packages-select p02_interfaces p03_topics
 source install/setup.bash
 

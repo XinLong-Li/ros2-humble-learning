@@ -56,7 +56,7 @@ p06_params/
 
 ```bash
 source /opt/ros/humble/setup.bash
-cd ~/ros2_ws/ros2-humble-learning
+cd ~/ros2-humble-learning
 colcon build --symlink-install --packages-select p06_params
 source install/setup.bash
 ```

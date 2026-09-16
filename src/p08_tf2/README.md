@@ -97,7 +97,7 @@ p08_tf2/
 ## 编译运行
 
 ```bash
-# 在仓库根目录（~/ros2_ws/ros2-humble-learning）
+# 在仓库根目录（~/ros2-humble-learning）
 source /opt/ros/humble/setup.bash
 colcon build --symlink-install --packages-select p08_tf2
 source install/setup.bash

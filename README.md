@@ -62,7 +62,7 @@ ros2-humble-learning/
 source /opt/ros/humble/setup.bash
 
 # 2. 构建全部包（首次 1~3 分钟，此后增量编译只要几秒）
-cd ~/ros2_ws/ros2-humble-learning
+cd ~/ros2-humble-learning
 colcon build --symlink-install
 
 # 3. 加载本工作空间的 overlay
