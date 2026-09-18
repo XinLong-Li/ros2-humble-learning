@@ -56,6 +56,7 @@ ros2-humble-learning/
 | [13-turtlesim-teleop-remap.md](docs/13-turtlesim-teleop-remap.md) | 案例复盘：官方教程的键盘 remap 为什么在 Humble 上失效 |
 | [14-colcon-test-flaky-failures.md](docs/14-colcon-test-flaky-failures.md) | `colcon test` 环境性假失败排查（xmllint 联网、并发抢 DDS） |
 | [15-git-clone-and-shell-notes.md](docs/15-git-clone-and-shell-notes.md) | git clone 与 shell 笔记：代理变量、`-C`、重定向 |
+| [16-colcon-and-overlay-concepts.md](docs/16-colcon-and-overlay-concepts.md) | colcon 与 overlay 概念梳理（catkin→colcon 历史、分层环境） |
 
 ## 快速开始
 
